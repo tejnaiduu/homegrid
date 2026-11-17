@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 
 process.env.NODE_ENV = 'test';
-process.env.MONGODB_URI = 'mongodb://127.0.0.1:27017/wireflow_test';
+process.env.MONGODB_URI = 'mongodb://127.0.0.1:27017/homegrid_test';
 process.env.JWT_SECRET = 'test-secret-with-at-least-32-characters';
 process.env.CLIENT_URL = 'http://localhost:5173';
 

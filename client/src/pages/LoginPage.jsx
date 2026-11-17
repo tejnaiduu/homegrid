@@ -25,7 +25,7 @@ export default function LoginPage() {
     <main className="auth-layout">
       <section className="auth-card">
         <div className="eyebrow">WELCOME BACK</div>
-        <h1>Sign in to WireFlow</h1>
+        <h1>Sign in to Homegrid</h1>
         <p className="muted">Access your electrical material workspace.</p>
         <form onSubmit={handleSubmit} className="form-stack">
           <label>Phone or email
@@ -37,7 +37,7 @@ export default function LoginPage() {
           {error && <div className="alert alert-error">{error}</div>}
           <button className="button button-primary button-full" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'} <ArrowRight size={17} /></button>
         </form>
-        <p className="auth-foot">New to WireFlow? <Link to="/register">Create an account</Link></p>
+        <p className="auth-foot">New to Homegrid? <Link to="/register">Create an account</Link></p>
       </section>
       <aside className="auth-aside">
         <div className="aside-icon"><Zap size={28} /></div>

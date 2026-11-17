@@ -1,4 +1,4 @@
-# WireFlow Testing Status
+# Homegrid Testing Status
 
 ## Current automated coverage
 

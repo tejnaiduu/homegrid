@@ -77,7 +77,7 @@ export default function AdminDashboardPage() {
   return (
     <main className="dashboard-page admin-page">
       <section className="dashboard-hero">
-        <div><div className="eyebrow">SUPER ADMIN · LIVE OPERATIONS</div><h1>Platform overview</h1><p>Monitor WireFlow activity and keep account access in good standing.</p></div>
+        <div><div className="eyebrow">SUPER ADMIN · LIVE OPERATIONS</div><h1>Platform overview</h1><p>Monitor Homegrid activity and keep account access in good standing.</p></div>
         <button className="button button-outline admin-refresh" onClick={loadAdminData} disabled={loading}><RefreshCw size={16} /> Refresh</button>
       </section>
       {error && <div className="alert alert-error admin-alert">{error}</div>}

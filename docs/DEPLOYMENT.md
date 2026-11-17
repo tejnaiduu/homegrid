@@ -1,4 +1,4 @@
-# WireFlow Deployment Readiness
+# Homegrid Deployment Readiness
 
 ## Current deployment status
 

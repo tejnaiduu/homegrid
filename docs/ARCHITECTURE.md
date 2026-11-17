@@ -1,4 +1,4 @@
-# WireFlow — Finalized Data Model and Workflow Rules
+# Homegrid — Finalized Data Model and Workflow Rules
 
 This document reflects the current implementation and the verified application flows in the repository. It is intended to match the deployed behavior of the platform rather than the earlier starter-only assumptions.
 

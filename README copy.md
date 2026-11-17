@@ -1,6 +1,6 @@
-# WireFlow — Electrical Material Management Platform
+# Homegrid — Electrical Material Management Platform
 
-WireFlow is a working electrical-material workflow platform for electricians, customers, shop owners, and platform admins. The implemented system covers account registration, customer linking, material request creation, shop access approvals, inventory and order flows, fulfilment, invoice issuance, and admin oversight.
+Homegrid is a working electrical-material workflow platform for electricians, customers, shop owners, and platform admins. The implemented system covers account registration, customer linking, material request creation, shop access approvals, inventory and order flows, fulfilment, invoice issuance, and admin oversight.
 
 The current codebase is not a starter stub. It includes the end-to-end business flows that were validated in the project test suite:
 

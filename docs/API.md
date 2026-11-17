@@ -1,4 +1,4 @@
-# WireFlow API Inventory
+# Homegrid API Inventory
 
 ## Base API
 
@@ -98,4 +98,4 @@ Source: `server/src/routes/notificationRoutes.js`
 
 ## Observations
 
-The API surface is broad and mostly consistent with the WireFlow business domain. The remaining gaps are not in route availability but in validation depth, business workflow regression tests and the final production-hardening layer.
+The API surface is broad and mostly consistent with the Homegrid business domain. The remaining gaps are not in route availability but in validation depth, business workflow regression tests and the final production-hardening layer.

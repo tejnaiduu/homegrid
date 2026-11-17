@@ -1,8 +1,9 @@
-# WireFlow Development Status
+# Homegrid Development Status
 
-This ledger reflects the repository state verified on 2026-11-17. `TESTED` means a focused executable check passed (automated suite or a live API smoke check). `IMPLEMENTED` means the code path exists but is not covered by a dedicated automated check. This is not a production deployment certificate and no live-hosting verification is implied.
 
-Repo-level gate `npm run validate` was re-run on 2026-11-16: environment checks passed, all 25 backend tests passed, and the client production build completed.
+This ledger reflects the repository state verified on 2026-11-17. `TESTED` means a focused executable check passed (automated suite or a live API smoke check). `IMPLEMENTED` means the code path exists but is not covered by a dedicated automated check. Production hosting checks are called out explicitly; this is not a full production deployment certificate.
+
+Repo-level gate `npm run validate` was re-run on 2026-11-16: environment checks passed, all 25 backend tests passed at that time, and the client production build completed.
 
 ## Foundation
 
@@ -10,7 +11,6 @@ Repo-level gate `npm run validate` was re-run on 2026-11-16: environment checks 
 |---|---|---|
 | React/Vite client | TESTED | Production build passes (`dist` bundle 288.45 kB, 83.72 kB gzip). |
 | Express/Mongoose server | TESTED | Server boots and API workflows pass the backend suite. |
-| MongoDB environment | TESTED | Local development is validated with MongoDB and startup diagnostics. |
 | Password hashing and cookie session | IMPLEMENTED | bcrypt (cost 12) and HttpOnly cookie session are wired. |
 | Session persistence after page reload | TESTED | The client restores the session through `/auth/me`; a live browser reload remained authenticated without trying to read the HttpOnly cookie from JavaScript. |
 | Authentication refresh | TESTED | Protected refresh endpoint returns expected 401 without a session. |
@@ -27,6 +27,7 @@ Repo-level gate `npm run validate` was re-run on 2026-11-16: environment checks 
 | Electrician workspace | TESTED | Customer and house records, material request composer (catalogue and custom items), QR link generation, request history and purchase tracking are implemented and passing backend tests. |
 | Shop owner workspace | TESTED | Shop profile, branch management, inventory setup, low-stock alerts, stock movements, request lookup, reservations, idempotent order creation, fulfilment, cancellation, invoices, credit notes, and customer return approval/rejection are implemented. |
 | Super Admin authentication and route protection | TESTED | Admin role, seed flow, protected route gating, and role-aware login redirect are working. |
+| One-time first-admin setup | TESTED | `/admin/setup` and its API are deployed. A private `ADMIN_BOOTSTRAP_TOKEN` protects transactional first-admin creation; public registration still rejects admin roles. The latest status check returned `available:false`, which can mean the token is unset or setup is already complete. |
 | Super Admin live overview | TESTED | MongoDB-backed counts and invoice totals are exposed and rendered. |
 | Super Admin shop verification | TESTED | Pending shops are listed and can be verified or rejected through protected APIs and the dashboard. |
 | Super Admin order monitoring | TESTED | Protected order list API and dashboard monitoring table are implemented. |
@@ -61,10 +62,10 @@ Repo-level gate `npm run validate` was re-run on 2026-11-16: environment checks 
 | Rate limiting and security headers | IMPLEMENTED | Auth rate limiting (30 per 15 minutes, relaxed under `NODE_ENV=test`) and Helmet are configured. |
 | Environment bootstrap and startup validation | TESTED | The repo includes cross-platform setup, explicit env checks, automatic `.env` creation, startup port fallback, and a repo-level validation gate. |
 | Admin seed script | TESTED | `npm run seed:admin` loads `server/.env` before connecting (covered by a test), enforces an 8-character minimum password, creates the first admin, and can add the admin role to an existing user. |
-| Automated unit/integration tests | TESTED | 27 tests pass, including the customer-return integration test covering partial quantities, over-return prevention, shop approval/rejection, stock movements, and duplicate-decision protection. |
+| Automated unit/integration tests | TESTED | 28 tests pass, including the one-time admin setup concurrency/closure test and the customer-return integration test covering partial quantities, over-return prevention, shop approval/rejection, stock movements, and duplicate-decision protection. |
 | Notifications | TESTED | Approval notifications, authenticated list/read APIs, customer UI controls and authenticated Socket.IO delivery are covered by API regression tests. Low-stock alerts are created on stock movements but are not asserted by the suite. |
 | Local deployment scaffolding | TESTED | Docker Compose and Dockerfiles are present for API, web app and MongoDB local stack orchestration (web on 5174, API on 5002, Mongo on 27020). |
-| Production deployment verification | IN PROGRESS | External credentials, Atlas replica-set configuration, and live hosting checks remain. The repo is prepared for deployment hardening and smoke testing, not final production rollout. |
+| Production deployment verification | PARTIALLY VERIFIED | Vercel frontend and Render API are live, and the admin setup UI/API were verified after deployment. Full production workflow checks and confirmation of first-admin creation remain. |
 
 ## Current Audit Snapshot (Repository-backed)
 
@@ -73,13 +74,14 @@ This snapshot reflects the verified state of the codebase, not a generic estimat
 - Functional implementation completion: ~95%
 - Automated validation completion: ~100% for the implemented core workflow suite
 - Security verification completion: ~90%
-- Deployment readiness: ~60% (local stack and env hardening done; external production hosting still pending)
+- Deployment readiness: ~80% (frontend and API are live; admin bootstrap outcome and broader production workflow checks remain)
 
 ### Verification evidence
 
 - Repo-level validation executed with `npm run validate` on 2026-11-16: environment checks passed, backend tests passed, and the client build completed successfully.
-- Server suite executed with `npm test --prefix server`: 25 passed, 0 failed.
+- Server suite executed with `npm test --prefix server` on 2026-11-17: 28 passed, 0 failed, including the one-time admin setup test.
 - Client production build executed with `npm run build --prefix client`: build succeeded.
+- Commit `33b5c7e` added and pushed the one-time admin setup feature to `main`. The Vercel setup page and Render status endpoint were verified live. The latest API status response was `available:false`; this does not distinguish an unset setup token from an already-completed setup.
 - Startup regression checked: the API falls back to a free port when the requested port is occupied.
 - Server shutdown regression checked: the server registers handlers and closes sockets and Mongo connections cleanly without hanging.
 - Request-code compatibility regression validated: user-entered material request IDs work with or without the `EL-` prefix.
@@ -96,4 +98,4 @@ This snapshot reflects the verified state of the codebase, not a generic estimat
 
 ### Current status
 
-The repository is in a strong, validated implementation state and is positioned for production deployment hardening rather than feature churn. The remaining trust gap is not business logic; it is real external deployment validation with host credentials, secure production env values, and Atlas/replica-set-aware Mongo configuration.
+The repository is in a strong, validated implementation state and is deployed to Vercel and Render. Confirm whether the one-time admin account was created; if setup is still needed, configure `ADMIN_BOOTSTRAP_TOKEN` in Render. After successful setup, remove that token. Broader production workflow checks and ongoing hosting/secret hardening remain.

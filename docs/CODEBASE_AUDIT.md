@@ -1,8 +1,8 @@
-# WireFlow — Codebase Audit and Continuation Assessment
+# Homegrid — Codebase Audit and Continuation Assessment
 
 ## 1. Project overview
 
-WireFlow is a MERN-based electrical-material workflow platform designed to support the end-to-end process from electrician-created material requests to multi-shop fulfilment, invoice issuance and customer purchase summaries. The repository already contains a functioning role-based foundation and substantial business logic, but it is not a complete production-grade marketplace.
+Homegrid is a MERN-based electrical-material workflow platform designed to support the end-to-end process from electrician-created material requests to multi-shop fulfilment, invoice issuance and customer purchase summaries. The repository already contains a functioning role-based foundation and substantial business logic, but it is not a complete production-grade marketplace.
 
 The implementation currently centres on:
 
@@ -442,6 +442,6 @@ These numbers are intentionally conservative. The project already includes a sub
 
 ## 21. Bottom line
 
-WireFlow is no longer a blank project. It is a working foundation with many implemented domain features and a consistent architecture. It is however still in a “core platform with partial workflow completion” state, not a fully tested or production-ready system.
+Homegrid is no longer a blank project. It is a working foundation with many implemented domain features and a consistent architecture. It is however still in a “core platform with partial workflow completion” state, not a fully tested or production-ready system.
 
 The correct move is to continue from this exact implementation, validate the genuine remaining gaps, and avoid unnecessary rework or re-creation of already working modules.

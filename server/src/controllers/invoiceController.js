@@ -44,7 +44,7 @@ export async function downloadInvoicePdf(req, res) {
   document.fontSize(12).text(`Subtotal: Rs ${(invoice.subtotalPaise / 100).toFixed(2)}`);
   document.text(`Tax: Rs ${(invoice.taxPaise / 100).toFixed(2)}`);
   document.text(`Total: Rs ${(invoice.totalPaise / 100).toFixed(2)}`);
-  document.fontSize(9).moveDown().text('This document is an invoice issued by the seller. WireFlow consolidated summaries are not tax invoices.');
+  document.fontSize(9).moveDown().text('This document is an invoice issued by the seller. Homegrid consolidated summaries are not tax invoices.');
   document.end();
 }
 
@@ -62,7 +62,7 @@ export async function downloadPurchaseSummaryPdf(req, res) {
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', `attachment; filename="${summary.statementNumber}.pdf"`);
   document.pipe(res);
-  document.fontSize(20).text('WireFlow Purchase Summary');
+  document.fontSize(20).text('Homegrid Purchase Summary');
   document.fontSize(10).text('Consolidated customer statement - not a tax invoice');
   document.moveDown();
   document.text(`Statement: ${summary.statementNumber}`);

@@ -52,8 +52,8 @@ export default function ShopDashboardPage() {
   useEffect(() => {
     const loadNotifications = () => apiRequest('/notifications').then((result) => setNotifications(result.data.notifications)).catch(() => {});
     loadNotifications();
-    window.addEventListener('wireflow:notification', loadNotifications);
-    return () => window.removeEventListener('wireflow:notification', loadNotifications);
+    window.addEventListener('homegrid:notification', loadNotifications);
+    return () => window.removeEventListener('homegrid:notification', loadNotifications);
   }, []);
 
   async function saveProfile(event) {

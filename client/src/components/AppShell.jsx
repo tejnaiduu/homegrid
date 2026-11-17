@@ -15,7 +15,7 @@ export default function AppShell({ children }) {
       <header className="topbar">
         <Link className="brand" to={user ? '/dashboard' : '/'}>
           <span className="brand-mark"><Zap size={19} /></span>
-          <span>WireFlow</span>
+          <span>Homegrid</span>
         </Link>
         <div className="topbar-right">
           {user ? (
@@ -32,7 +32,7 @@ export default function AppShell({ children }) {
         </div>
       </header>
       {children}
-      <footer className="footer">WireFlow · Electrical material requests and shop fulfilment</footer>
+      <footer className="footer">Homegrid · Electrical material requests and shop fulfilment</footer>
     </div>
   );
 }

@@ -1,8 +1,8 @@
-# WireFlow Database Design
+# Homegrid Database Design
 
 ## Overview
 
-The application uses MongoDB via Mongoose. The current model layer is intentionally domain-oriented and largely matches the WireFlow business flow: customer records, electrician-owned request data, shop inventory and orders, invoice generation, purchase summaries and notification records.
+The application uses MongoDB via Mongoose. The current model layer is intentionally domain-oriented and largely matches the Homegrid business flow: customer records, electrician-owned request data, shop inventory and orders, invoice generation, purchase summaries and notification records.
 
 ## Core collections
 

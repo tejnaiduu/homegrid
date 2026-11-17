@@ -19,7 +19,7 @@ function runSetup(targetDir) {
 }
 
 test('setupLocalEnv creates a local .env from the example when missing', async () => {
-  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'wireflow-env-'));
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'homegrid-env-'));
   const targetDir = path.join(tempDir, 'server');
   await fs.mkdir(targetDir, { recursive: true });
   await fs.copyFile(path.join(serverRoot, '.env.example'), path.join(targetDir, '.env.example'));

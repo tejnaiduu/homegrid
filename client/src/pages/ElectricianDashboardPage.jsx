@@ -82,7 +82,7 @@ export default function ElectricianDashboardPage() {
 
   async function shareRequest() {
     if (!createdRequest?.accessUrl) return;
-    const text = `WireFlow material request ${createdRequest.requestCode}: ${createdRequest.accessUrl}`;
+    const text = `Homegrid material request ${createdRequest.requestCode}: ${createdRequest.accessUrl}`;
     if (navigator.share) {
       try { await navigator.share({ title: `Material request ${createdRequest.requestCode}`, text }); return; } catch { /* User cancelled sharing. */ }
     }
