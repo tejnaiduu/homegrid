@@ -53,6 +53,13 @@ export function AuthProvider({ children }) {
       setUser(result.data.user);
       return result.data.user;
     },
+    async bootstrapAdmin(payload) {
+      const result = await apiRequest('/auth/admin-setup', {
+        method: 'POST', body: JSON.stringify(payload),
+      });
+      setUser(result.data.user);
+      return result.data.user;
+    },
     async logout() {
       await apiRequest('/auth/logout', { method: 'POST' });
       setUser(null);

@@ -52,3 +52,13 @@ Vercel and Render domains are on different sites. Some browsers restrict
 third-party cookies; using custom frontend and API domains under the same
 registrable domain (for example, `app.example.com` and `api.example.com`) is
 recommended for reliable sign-in.
+
+### Create the first administrator
+
+Public registration does not grant administrator access. For the first admin,
+set `ADMIN_BOOTSTRAP_TOKEN` in the Render service environment to a random secret
+of at least 32 characters, then redeploy the API and frontend. Open
+`https://<your-vercel-domain>/admin/setup` and enter that key with the account
+details. The setup endpoint accepts only one administrator and then closes.
+Remove `ADMIN_BOOTSTRAP_TOKEN` from Render after setup, and sign in at `/login`.
+Never commit or share the setup key.

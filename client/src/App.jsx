@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
+import AdminSetupPage from './pages/AdminSetupPage.jsx';
 import RequestAccessPage from './pages/RequestAccessPage.jsx';
 import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
 import ShopDashboardPage from './pages/ShopDashboardPage.jsx';
@@ -25,6 +26,13 @@ function RegisterRoute() {
   return user ? <Navigate to="/dashboard" replace /> : <RegisterPage />;
 }
 
+function AdminSetupRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="page-loading">Loading…</div>;
+  if (user?.roles.includes('ADMIN')) return <Navigate to="/admin/dashboard" replace />;
+  return <AdminSetupPage />;
+}
+
 function RoleDashboardRedirect() {
   const { user } = useAuth();
   if (user.roles.includes('ADMIN')) return <Navigate to="/admin/dashboard" replace />;
@@ -41,6 +49,7 @@ function AppRoutes() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginRoute />} />
         <Route path="/register" element={<RegisterRoute />} />
+        <Route path="/admin/setup" element={<AdminSetupRoute />} />
         <Route path="/access/:token" element={<RequestAccessPage />} />
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />

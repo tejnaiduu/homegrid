@@ -27,7 +27,7 @@ function safeUser(user) {
   };
 }
 
-function createSession(user, res) {
+export function createSession(user, res) {
   const token = jwt.sign({ sub: user._id.toString(), roles: user.roles }, env.jwtSecret, {
     expiresIn: env.jwtExpiresIn,
   });
