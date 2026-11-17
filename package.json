@@ -1,0 +1,22 @@
+{
+  "name": "electrical-material-platform",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "predev": "npm run setup:env --prefix server && npm run check:env --prefix server",
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "check:env": "npm run check:env --prefix server",
+    "setup:env": "npm run setup:env --prefix server",
+    "test": "npm test --prefix server",
+    "build": "npm run build --prefix client",
+    "validate": "npm run check:env --prefix server && npm test --prefix server && npm run build --prefix client",
+    "prestart": "npm run setup:env --prefix server && npm run check:env --prefix server",
+    "start": "npm run start --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
