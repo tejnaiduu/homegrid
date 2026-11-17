@@ -34,10 +34,11 @@ export default function RequestAccessPage() {
         <div className="request-status"><Clock3 size={15} /> {request.status.replaceAll('_', ' ')}</div>
         <div className="table-wrap">
           <table>
-            <thead><tr><th>Item</th><th>Required</th><th>Fulfilled</th><th>Pending</th></tr></thead>
+            <thead><tr><th>Item</th><th>Required</th><th>Fulfilled</th><th>Returned</th><th>Pending</th></tr></thead>
             <tbody>{request.items.map((item) => {
-              const pending = Math.max(0, item.requestedQty - item.fulfilledQty - item.reservedQty);
-              return <tr key={item.itemId}><td><strong>{item.name}</strong><small>{item.brandPreference || item.category || item.itemType}</small></td><td>{formatQty(item.requestedQty)} {item.unit}</td><td>{formatQty(item.fulfilledQty)} {item.unit}</td><td>{formatQty(pending)} {item.unit}</td></tr>;
+              const returnedQty = Number(item.returnedQty || 0);
+              const pending = Math.max(0, item.requestedQty - (item.fulfilledQty - returnedQty) - item.reservedQty);
+              return <tr key={item.itemId}><td><strong>{item.name}</strong><small>{item.brandPreference || item.category || item.itemType}</small></td><td>{formatQty(item.requestedQty)} {item.unit}</td><td>{formatQty(item.fulfilledQty)} {item.unit}</td><td>{formatQty(returnedQty)} {item.unit}</td><td>{formatQty(pending)} {item.unit}</td></tr>;
             })}</tbody>
           </table>
         </div>

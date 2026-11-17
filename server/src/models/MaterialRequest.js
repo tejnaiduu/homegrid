@@ -13,6 +13,7 @@ const requestItemSchema = new mongoose.Schema({
   requestedQty: { type: Number, required: true, min: 0.0001 },
   reservedQty: { type: Number, default: 0, min: 0 },
   fulfilledQty: { type: Number, default: 0, min: 0 },
+  returnedQty: { type: Number, default: 0, min: 0 },
   notes: { type: String, trim: true, maxlength: 500 },
 }, { _id: false });
 

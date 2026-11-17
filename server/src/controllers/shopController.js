@@ -21,6 +21,21 @@ import { runWithOptionalTransaction } from '../utils/transactions.js';
 const UNITS = ['PCS', 'METRE', 'ROLL', 'BOX', 'SET', 'KG', 'LITRE', 'OTHER'];
 const STOCK_MOVEMENTS = ['PURCHASE_IN', 'SALE_OUT', 'RETURN_IN'];
 
+function netFulfilledQty(item) {
+  return Math.max(0, Number(item.fulfilledQty || 0) - Number(item.returnedQty || 0));
+}
+
+function remainingRequestQty(item) {
+  return Math.max(0, Number(item.requestedQty) - Number(item.reservedQty || 0) - netFulfilledQty(item));
+}
+
+function materialRequestStatus(items) {
+  if (items.every((item) => netFulfilledQty(item) >= item.requestedQty)) return 'FULFILLED';
+  return items.some((item) => netFulfilledQty(item) > 0 || Number(item.reservedQty || 0) > 0)
+    ? 'PARTIALLY_FULFILLED'
+    : 'OPEN';
+}
+
 async function getOwnedShop(userId) {
   return Shop.findOne({ ownerUserId: userId, isActive: true });
 }
@@ -157,7 +172,8 @@ export async function lookupMaterialRequest(req, res) {
     requestedQty: item.requestedQty,
     reservedQty: item.reservedQty,
     fulfilledQty: item.fulfilledQty,
-    remainingQty: Math.max(0, item.requestedQty - item.reservedQty - item.fulfilledQty),
+    returnedQty: Number(item.returnedQty || 0),
+    remainingQty: remainingRequestQty(item),
     brandPreference: item.brandPreference,
     specifications: item.specifications,
     inventory: inventory.filter((stock) => (item.productId && stock.productId?._id.equals(item.productId)) || (!item.productId && stock.customName === item.name)).map((stock) => ({
@@ -186,7 +202,7 @@ export async function createShopOrder(req, res) {
       const quantity = Number(line.offeredQty);
       const requestItem = requestInTransaction.items.find((item) => item.itemId === line.requestItemId);
       if (!requestItem || !Number.isFinite(quantity) || quantity <= 0) throw new ApiError(400, 'Each order line must reference a valid positive quantity.');
-      const remainingQty = requestItem.requestedQty - requestItem.reservedQty - requestItem.fulfilledQty;
+      const remainingQty = remainingRequestQty(requestItem);
       if (quantity > remainingQty) throw new ApiError(409, `Quantity exceeds remaining requirement for ${requestItem.name}.`);
       const inventory = await InventoryItem.findOneAndUpdate(
         { _id: line.inventoryItemId, branchId: branch._id, isActive: true, $expr: { $gte: [{ $subtract: ['$quantityOnHand', '$quantityReserved'] }, quantity] } },
@@ -243,8 +259,7 @@ export async function fulfilShopOrder(req, res) {
     const complete = order.lines.every((line) => line.fulfilledQty >= line.approvedQty);
     order.status = complete ? 'FULFILLED' : 'PARTIALLY_FULFILLED';
     if (complete) order.fulfilledAt = new Date();
-    const allFulfilled = request.items.every((item) => item.fulfilledQty >= item.requestedQty);
-    request.status = allFulfilled ? 'FULFILLED' : 'PARTIALLY_FULFILLED';
+    request.status = materialRequestStatus(request.items);
     await request.save({ session });
     await order.save({ session });
     if (complete) {
@@ -277,7 +292,7 @@ export async function cancelShopOrder(req, res) {
       await InventoryMovement.create([{ inventoryItemId: inventory._id, branchId: order.branchId, movementType: 'RELEASE', quantity: reserved, quantityOnHandBefore: inventory.quantityOnHand, quantityOnHandAfter: inventory.quantityOnHand, quantityReservedBefore: inventory.quantityReserved + reserved, quantityReservedAfter: inventory.quantityReserved, referenceType: 'SHOP_ORDER', referenceId: order._id, performedBy: req.user._id }], { session });
     }
     order.status = 'CANCELLED';
-    request.status = request.items.some((item) => item.fulfilledQty > 0) ? 'PARTIALLY_FULFILLED' : 'OPEN';
+    request.status = materialRequestStatus(request.items);
     await Promise.all([order.save({ session }), request.save({ session })]);
   });
   res.json({ success: true, message: 'Order cancelled and reservations released.' });
@@ -310,9 +325,11 @@ export async function decideShopReturnRequest(req, res) {
   await runWithOptionalTransaction(async (session) => {
     let returnRequest;
     let order;
+    let request;
     let inventory;
     let movement;
     let orderSaved = false;
+    let requestSaved = false;
     returnRequest = await ReturnRequest.findOneAndUpdate(
       { _id: req.params.id, shopId: shop._id, status: 'PENDING' },
       { $set: { status: 'PROCESSING' } },
@@ -335,6 +352,19 @@ export async function decideShopReturnRequest(req, res) {
       }
 
       if (decision === 'APPROVE') {
+        request = await MaterialRequest.findById(returnRequest.requestId).session(session);
+        const requestItem = request?.items.find((item) => item.itemId === line.requestItemId);
+        if (!request || !requestItem) throw new ApiError(409, 'The material request line for this return is no longer available.');
+        const totalFulfilled = Number(requestItem.fulfilledQty || 0);
+        const totalReturned = Number(requestItem.returnedQty || 0);
+        if (totalReturned + returnRequest.quantity > totalFulfilled + 1e-9) {
+          throw new ApiError(409, 'Approved returns cannot exceed the fulfilled request quantity.');
+        }
+        requestItem.returnedQty = totalReturned + returnRequest.quantity;
+        if (request.status !== 'CANCELLED') request.status = materialRequestStatus(request.items);
+        await request.save({ session });
+        requestSaved = true;
+
         inventory = await InventoryItem.findOneAndUpdate(
           { _id: returnRequest.inventoryItemId, branchId: order.branchId, isActive: true },
           { $inc: { quantityOnHand: returnRequest.quantity } },
@@ -392,6 +422,16 @@ export async function decideShopReturnRequest(req, res) {
             rollbackLine.returnPendingQty = Number(rollbackLine.returnPendingQty || 0) + returnRequest.quantity;
             if (decision === 'APPROVE') rollbackLine.returnApprovedQty = Number(rollbackLine.returnApprovedQty || 0) - returnRequest.quantity;
             await rollbackOrder.save({ session });
+          } catch (rollbackError) { rollbackErrors.push(rollbackError); }
+        }
+        if (requestSaved) {
+          try {
+            const rollbackRequest = await MaterialRequest.findById(request._id).session(session);
+            const rollbackItem = rollbackRequest?.items.find((item) => item.itemId === order.lines[returnRequest.orderLineIndex].requestItemId);
+            if (!rollbackItem) throw new Error('Material request line disappeared before rollback.');
+            rollbackItem.returnedQty = Math.max(0, Number(rollbackItem.returnedQty || 0) - returnRequest.quantity);
+            if (rollbackRequest.status !== 'CANCELLED') rollbackRequest.status = materialRequestStatus(rollbackRequest.items);
+            await rollbackRequest.save({ session });
           } catch (rollbackError) { rollbackErrors.push(rollbackError); }
         }
         try {

@@ -27,7 +27,9 @@ export function AuthProvider({ children }) {
     getApiBase().then((apiBase) => {
       if (!isMounted) return;
       socket = io(apiBase.replace(/\/api\/v1$/, ''), { withCredentials: true });
-      socket.on('NOTIFICATION_CREATED', () => window.dispatchEvent(new Event('homegrid:notification')));
+      socket.on('NOTIFICATION_CREATED', (notification) => {
+        window.dispatchEvent(new CustomEvent('homegrid:notification', { detail: notification }));
+      });
     }).catch(() => {});
 
     return () => {
