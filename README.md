@@ -33,6 +33,11 @@ In Render, create a **Blueprint** from the GitHub repository. Render will read
 without a trailing slash (for example, `https://homegrid.vercel.app`). Render
 generates `JWT_SECRET`.
 
+Before each API start, Render runs the idempotent catalogue seed. A fresh
+production database receives the five starter electrical products; products
+already present with those SKUs are left unchanged. Additional products can
+still be added from the administrator's Product Catalogue panel.
+
 ### 5. Finish the frontend deployment
 
 In Vercel, set `VITE_API_URL` to the Render API URL followed by `/api/v1`, for

@@ -5,7 +5,7 @@ services:
     plan: free
     rootDir: server
     buildCommand: npm ci
-    startCommand: node src/server.js
+    startCommand: npm run seed:catalog && node src/server.js
     healthCheckPath: /api/v1/health/ready
     envVars:
       - key: NODE_VERSION
