@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Bell, ClipboardList, Package, Plus, RefreshCw, Store } from 'lucide-react';
+import { ClipboardList, Package, Plus, RefreshCw, Store } from 'lucide-react';
 import { apiRequest } from '../services/api.js';
 
 const emptyBranch = { branchName: '', phone: '', line1: '', city: '' };
@@ -22,7 +22,6 @@ export default function ShopDashboardPage() {
   const [lookupResult, setLookupResult] = useState(null);
   const [orderBranchId, setOrderBranchId] = useState('');
   const [orderLines, setOrderLines] = useState({});
-  const [notifications, setNotifications] = useState([]);
   const [products, setProducts] = useState([]);
   const [inventoryForm, setInventoryForm] = useState({ branchId: '', productId: '', customName: '', unit: 'PCS', sku: '', quantityOnHand: '', sellingPrice: '', lowStockThreshold: '' });
   const [profile, setProfile] = useState({ businessName: '', contactPhone: '', gstNumber: '' });
@@ -49,13 +48,6 @@ export default function ShopDashboardPage() {
   }
 
   useEffect(() => { loadShop(); }, []);
-  useEffect(() => {
-    const loadNotifications = () => apiRequest('/notifications').then((result) => setNotifications(result.data.notifications)).catch(() => {});
-    loadNotifications();
-    window.addEventListener('homegrid:notification', loadNotifications);
-    return () => window.removeEventListener('homegrid:notification', loadNotifications);
-  }, []);
-
   async function saveProfile(event) {
     event.preventDefault(); setError(''); setMessage('');
     try { const result = await apiRequest('/shop/profile', { method: 'PUT', body: JSON.stringify(profile) }); setShop(result.data.shop); setMessage('Shop profile saved.'); }
@@ -127,18 +119,13 @@ export default function ShopDashboardPage() {
     catch (requestError) { setError(requestError.message); }
   }
 
-  async function markNotificationRead(notification) {
-    try { await apiRequest(`/notifications/${notification._id}/read`, { method: 'PATCH' }); setNotifications((current) => current.map((entry) => entry._id === notification._id ? { ...entry, isRead: true } : entry)); }
-    catch (requestError) { setError(requestError.message); }
-  }
-
   if (loading) return <main className="dashboard-page"><div className="page-loading">Loading shop workspace...</div></main>;
 
   return (
     <main className="dashboard-page shop-page">
       <section className="dashboard-hero"><div><div className="eyebrow">SHOP OWNER · OPERATIONS</div><h1>{shop?.businessName || 'Set up your shop'}</h1><p>Manage branches and stock available for future material requests.</p></div><button className="button button-outline admin-refresh" onClick={loadShop}><RefreshCw size={16} /> Refresh</button></section>
       {error && <div className="alert alert-error admin-alert">{error}</div>}{message && <div className="alert alert-success admin-alert">{message}</div>}
-      <section className="admin-panel shop-notifications"><div className="panel-heading"><div><div className="eyebrow">NOTIFICATIONS</div><h2><Bell size={16} /> {notifications.filter((entry) => !entry.isRead).length} unread</h2></div></div>{notifications.length ? notifications.slice(0, 5).map((notification) => <button className={`notification-item ${notification.isRead ? '' : 'notification-unread'}`} key={notification._id} onClick={() => markNotificationRead(notification)}><strong>{notification.title}</strong><span>{notification.message}</span></button>) : <p className="muted small-note">No notifications yet.</p>}</section>
+
       <section className="shop-form-grid">
         <form className="admin-panel form-stack" onSubmit={saveProfile}><div className="panel-heading"><div><div className="eyebrow">BUSINESS PROFILE</div><h2>Shop details</h2></div><Store size={20} /></div><label>Business name<input value={profile.businessName} onChange={(e) => setProfile({ ...profile, businessName: e.target.value })} required /></label><label>Contact phone<input value={profile.contactPhone} onChange={(e) => setProfile({ ...profile, contactPhone: e.target.value })} /></label><label>GST number<input value={profile.gstNumber} onChange={(e) => setProfile({ ...profile, gstNumber: e.target.value })} /></label><button className="button button-primary">Save profile</button>{shop && <span className="status-pill status-next">Verification: {shop.verificationStatus}</span>}</form>
         <form className="admin-panel form-stack" onSubmit={addBranch}><div className="panel-heading"><div><div className="eyebrow">BRANCH MANAGEMENT</div><h2>Add branch</h2></div><Plus size={20} /></div><label>Branch name<input value={branch.branchName} onChange={(e) => setBranch({ ...branch, branchName: e.target.value })} required /></label><label>Phone<input value={branch.phone} onChange={(e) => setBranch({ ...branch, phone: e.target.value })} /></label><label>Address line<input value={branch.line1} onChange={(e) => setBranch({ ...branch, line1: e.target.value })} required /></label><label>City<input value={branch.city} onChange={(e) => setBranch({ ...branch, city: e.target.value })} required /></label><button className="button button-primary" disabled={!shop}>Add branch</button></form>

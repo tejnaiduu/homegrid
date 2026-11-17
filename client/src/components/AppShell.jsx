@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Zap, LogOut, CircleUserRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import NotificationMenu from './NotificationMenu.jsx';
 
 export default function AppShell({ children }) {
   const { user, logout } = useAuth();
@@ -20,8 +21,11 @@ export default function AppShell({ children }) {
         <div className="topbar-right">
           {user ? (
             <>
-              <span className="user-chip"><CircleUserRound size={16} /> {user.name}</span>
-              <Link className="button button-small button-quiet" to="/profile">Profile</Link>
+              <Link className="button button-small button-outline profile-link" to="/profile">
+                <CircleUserRound size={16} aria-hidden="true" />
+                <span className="profile-link-name">{user.name}</span>
+              </Link>
+              <NotificationMenu user={user} />
               {user.roles.includes('ADMIN') && <Link className="button button-small button-outline" to="/admin/dashboard">Admin</Link>}
               {user.roles.includes('SHOP_OWNER') && <Link className="button button-small button-outline" to="/shop/dashboard">Shop</Link>}
               {user.roles.includes('CUSTOMER') && <Link className="button button-small button-outline" to="/customer/dashboard">Customer</Link>}

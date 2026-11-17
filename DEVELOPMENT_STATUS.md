@@ -9,7 +9,7 @@ Repo-level gate `npm run validate` was re-run on 2026-11-16: environment checks 
 
 | Module | Status | Notes |
 |---|---|---|
-| React/Vite client | TESTED | Production build passes (`dist` bundle 288.45 kB, 83.72 kB gzip). |
+| React/Vite client | TESTED | Production build passes (JavaScript bundle 296.46 kB, 85.46 kB gzip; CSS 20.70 kB, 4.97 kB gzip). |
 | Express/Mongoose server | TESTED | Server boots and API workflows pass the backend suite. |
 | Password hashing and cookie session | IMPLEMENTED | bcrypt (cost 12) and HttpOnly cookie session are wired. |
 | Session persistence after page reload | TESTED | The client restores the session through `/auth/me`; a live browser reload remained authenticated without trying to read the HttpOnly cookie from JavaScript. |
@@ -26,6 +26,7 @@ Repo-level gate `npm run validate` was re-run on 2026-11-16: environment checks 
 | Customer workspace | TESTED | Request dashboard, request-ID and QR lookup (including camera scanning), shop-access approvals, purchase history, invoice view, summary PDF, notifications, and partial return requests are wired. |
 | Electrician workspace | TESTED | Customer and house records, material request composer (catalogue and custom items), QR link generation, request history and purchase tracking are implemented and passing backend tests. |
 | Shop owner workspace | TESTED | Shop profile, branch management, inventory setup, low-stock alerts, stock movements, request lookup, reservations, idempotent order creation, fulfilment, cancellation, invoices, credit notes, and customer return approval/rejection are implemented. |
+| Shared role header | IMPLEMENTED | All authenticated roles have a clickable profile control showing the profile icon and username, plus a shared notification bell with an unread badge and popup. |
 | Super Admin authentication and route protection | TESTED | Admin role, seed flow, protected route gating, and role-aware login redirect are working. |
 | One-time first-admin setup | TESTED | `/admin/setup` and its API are deployed. A private `ADMIN_BOOTSTRAP_TOKEN` protects transactional first-admin creation; public registration still rejects admin roles. The latest status check returned `available:false`, which can mean the token is unset or setup is already complete. |
 | Super Admin live overview | TESTED | MongoDB-backed counts and invoice totals are exposed and rendered. |
@@ -63,9 +64,9 @@ Repo-level gate `npm run validate` was re-run on 2026-11-16: environment checks 
 | Environment bootstrap and startup validation | TESTED | The repo includes cross-platform setup, explicit env checks, automatic `.env` creation, startup port fallback, and a repo-level validation gate. |
 | Admin seed script | TESTED | `npm run seed:admin` loads `server/.env` before connecting (covered by a test), enforces an 8-character minimum password, creates the first admin, and can add the admin role to an existing user. |
 | Automated unit/integration tests | TESTED | 28 tests pass, including the one-time admin setup concurrency/closure test and the customer-return integration test covering partial quantities, over-return prevention, shop approval/rejection, stock movements, and duplicate-decision protection. |
-| Notifications | TESTED | Approval notifications, authenticated list/read APIs, customer UI controls and authenticated Socket.IO delivery are covered by API regression tests. Low-stock alerts are created on stock movements but are not asserted by the suite. |
+| Notifications | IMPLEMENTED | Authenticated list/read APIs and Socket.IO delivery are covered by API regression tests. The shared header popup is available to all authenticated roles; current notification generation is limited to customers and shop owners. |
 | Local deployment scaffolding | TESTED | Docker Compose and Dockerfiles are present for API, web app and MongoDB local stack orchestration (web on 5174, API on 5002, Mongo on 27020). |
-| Production deployment verification | PARTIALLY VERIFIED | Vercel frontend and Render API are live, and the admin setup UI/API were verified after deployment. Full production workflow checks and confirmation of first-admin creation remain. |
+| Production deployment verification | PARTIALLY VERIFIED | Vercel frontend and Render API are live, and the admin setup UI/API were verified after deployment. Recent notification/profile header changes are local and not deployed. Full production workflow checks and confirmation of first-admin creation remain. |
 
 ## Current Audit Snapshot (Repository-backed)
 
@@ -80,7 +81,7 @@ This snapshot reflects the verified state of the codebase, not a generic estimat
 
 - Repo-level validation executed with `npm run validate` on 2026-11-16: environment checks passed, backend tests passed, and the client build completed successfully.
 - Server suite executed with `npm test --prefix server` on 2026-11-17: 28 passed, 0 failed, including the one-time admin setup test.
-- Client production build executed with `npm run build --prefix client`: build succeeded.
+- Client production build executed after the notification and profile header updates: succeeded (JavaScript bundle 296.46 kB, 85.46 kB gzip).
 - Commit `33b5c7e` added and pushed the one-time admin setup feature to `main`. The Vercel setup page and Render status endpoint were verified live. The latest API status response was `available:false`; this does not distinguish an unset setup token from an already-completed setup.
 - Startup regression checked: the API falls back to a free port when the requested port is occupied.
 - Server shutdown regression checked: the server registers handlers and closes sockets and Mongo connections cleanly without hanging.
